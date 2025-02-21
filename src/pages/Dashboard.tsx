@@ -113,13 +113,21 @@ const Dashboard = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <h1 className="text-2xl font-semibold">OrthoHCP Dashboard</h1>
-            <Button
-              onClick={handleSignOut}
-              variant="outline"
-              className="transition-all hover:scale-[1.02]"
-            >
-              Sign Out
-            </Button>
+            <div className="flex items-center gap-4">
+              <Button
+                onClick={() => navigate("/dashboard/add")}
+                className="transition-all hover:scale-[1.02]"
+              >
+                Add User
+              </Button>
+              <Button
+                onClick={handleSignOut}
+                variant="outline"
+                className="transition-all hover:scale-[1.02]"
+              >
+                Sign Out
+              </Button>
+            </div>
           </div>
         </div>
       </nav>
