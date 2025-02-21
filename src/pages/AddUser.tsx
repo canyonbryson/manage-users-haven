@@ -24,6 +24,8 @@ const roles = [
   "CLINICAL SPECIALIST",
 ] as const;
 
+type Role = typeof roles[number];
+
 const AddUser = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -33,7 +35,7 @@ const AddUser = () => {
     password: "",
     first_name: "",
     last_name: "",
-    role: "DOCTOR",
+    role: "DOCTOR" as Role,
     office_name: "",
     phone_number: "",
     office_phone_number: "",
@@ -184,7 +186,7 @@ const AddUser = () => {
               </label>
               <Select
                 value={formData.role}
-                onValueChange={(value) =>
+                onValueChange={(value: Role) =>
                   setFormData((prev) => ({
                     ...prev,
                     role: value,
