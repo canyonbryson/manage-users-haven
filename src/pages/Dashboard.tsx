@@ -1,8 +1,10 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Table,
   TableBody,
@@ -19,22 +21,47 @@ type User = {
 };
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [users, setUsers] = useState<User[]>([]);
 
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate("/login");
+      }
+    };
+
+    checkSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_OUT" || !session) {
+        navigate("/login");
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate]);
+
   const handleSignOut = async () => {
     try {
-      // Supabase sign out will be integrated here
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
       toast({
-        title: "Currently in development",
-        description: "Please connect to Supabase to enable sign out",
+        title: "Signed out successfully",
+        description: "You have been signed out of your account",
       });
-    } catch (error) {
+      navigate("/login");
+    } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "An error occurred while signing out.",
+        description: error?.message || "An error occurred while signing out.",
       });
     }
   };
@@ -44,7 +71,7 @@ const Dashboard = () => {
       <nav className="border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <h1 className="text-2xl font-semibold">User Management</h1>
+            <h1 className="text-2xl font-semibold">OrthoHCP Dashboard</h1>
             <Button
               onClick={handleSignOut}
               variant="outline"
@@ -81,9 +108,7 @@ const Dashboard = () => {
                 {users.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={3} className="text-center py-8">
-                      <p className="text-muted-foreground">
-                        Connect to Supabase to view users
-                      </p>
+                      <p className="text-muted-foreground">No users found</p>
                     </TableCell>
                   </TableRow>
                 ) : (

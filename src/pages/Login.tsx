@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -17,16 +18,25 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      // Supabase auth will be integrated here
-      toast({
-        title: "Currently in development",
-        description: "Please connect to Supabase to enable authentication",
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
-    } catch (error) {
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Success",
+        description: "You have successfully signed in",
+      });
+      navigate("/dashboard");
+    } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "An error occurred during sign in.",
+        description: error?.message || "An error occurred during sign in.",
       });
     } finally {
       setIsLoading(false);
@@ -37,8 +47,8 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="w-full max-w-md space-y-8 animate-fade-in">
         <div className="text-center space-y-2">
-          <h1 className="text-4xl font-semibold tracking-tight">Sign In</h1>
-          <p className="text-muted-foreground">Welcome back</p>
+          <h1 className="text-4xl font-semibold tracking-tight">OrthoHCP</h1>
+          <p className="text-muted-foreground">Sign in to access your dashboard</p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
